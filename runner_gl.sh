@@ -42,7 +42,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
@@ -67,7 +67,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
@@ -92,7 +92,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
@@ -117,7 +117,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
@@ -142,7 +142,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
@@ -167,7 +167,7 @@ for pred_len in 96 192 336 720; do
         --num_gl_blocks 2 \
         --fusion_type gated \
         --use_rora 0 \
-        --ema_alpha 0.2 \
+        --ema_alpha 0.3 \
         --train_epochs $EPOCHS \
         --batch_size $BATCH \
         --learning_rate $LR \
