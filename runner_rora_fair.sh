@@ -21,7 +21,7 @@ echo "Settings: epochs=$EPOCHS, batch=$BATCH, lr=$LR, patience=$PATIENCE"
 echo ""
 
 # Create results directory
-mkdir -p results_gl_fair
+mkdir -p results_gl_rora_fair
 
 # ============================================================
 # GL Gated (default configuration)
