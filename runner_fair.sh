@@ -21,7 +21,7 @@ echo "Settings: epochs=$EPOCHS, batch=$BATCH, lr=$LR, patience=$PATIENCE"
 echo ""
 
 # Create results directory
-mkdir -p results_gl
+mkdir -p results_gl_fair
 
 # ============================================================
 # GL Gated (default configuration)
@@ -49,7 +49,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_ETTh1_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_ETTh1_${pred_len}.log
 done
 
 # ETTh2
@@ -75,7 +75,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_ETTh2_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_ETTh2_${pred_len}.log
 done
 
 # ETTm1
@@ -101,7 +101,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_ETTm1_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_ETTm1_${pred_len}.log
 done
 
 # ETTm2
@@ -127,7 +127,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_ETTm2_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_ETTm2_${pred_len}.log
 done
 
 # Weather
@@ -153,7 +153,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_weather_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_weather_${pred_len}.log
 done
 
 # Exchange
@@ -179,7 +179,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_exchange_${pred_len}.log
+        2>&1 | tee results_gl_fair/gl_gated_exchange_${pred_len}.log
 done
 
 echo ""
@@ -189,7 +189,7 @@ echo "=========================================="
 echo ""
 echo "Results summary:"
 echo "----------------"
-grep -h "^mse:" results_gl/*.log | head -30
+grep -h "^mse:" results_gl_fair/*.log | head -30
 echo ""
 echo "Full results in results_gl/"
 echo "Parse with: grep 'Final Results\|MSE:' results_gl/*.log"
