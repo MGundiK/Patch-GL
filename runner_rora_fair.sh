@@ -50,7 +50,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_ETTh1_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_ETTh1_${pred_len}.log
 done
 
 # ETTh2
@@ -77,7 +77,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_ETTh2_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_ETTh2_${pred_len}.log
 done
 
 # ETTm1
@@ -104,7 +104,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_ETTm1_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_ETTm1_${pred_len}.log
 done
 
 # ETTm2
@@ -131,7 +131,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_ETTm2_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_ETTm2_${pred_len}.log
 done
 
 # Weather
@@ -158,7 +158,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_weather_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_weather_${pred_len}.log
 done
 
 # Exchange
@@ -185,7 +185,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl_fair/gl_gated_exchange_${pred_len}.log
+        2>&1 | tee results_gl_rora_fair/gl_gated_rora_exchange_${pred_len}.log
 done
 
 echo ""
