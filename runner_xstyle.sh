@@ -49,7 +49,7 @@ for pred_len in 96 192 336 720; do
         --lradj 'sigmoid'\
         --patience $PATIENCE \
         --itr 1 \
-        2>&1 | tee results_gl/gl_gated_xstyle_ETTh1_${pred_len}.log
+        2>&1 | tee results_gl/gl_gated_ETTh1_${pred_len}.log
 done
 
 # ETTh2
