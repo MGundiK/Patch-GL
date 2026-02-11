@@ -130,10 +130,16 @@ def main():
 
     # Run experiments
     for ii in range(args.itr):
+        # Get actual dataset name (extract from data_path if data='custom')
+        if args.data == 'custom':
+            dataset_name = args.data_path.replace('.csv', '')
+        else:
+            dataset_name = args.data
+        
         # Setting string for saving
         setting = '{}_{}_{}_sl{}_pl{}_agg{}_ms{}_gate{}'.format(
             args.model,
-            args.data,
+            dataset_name,
             args.features,
             args.seq_len,
             args.pred_len,
@@ -155,7 +161,7 @@ def main():
             mse, mae = exp.test(setting)
             
             print(f'\n{"="*60}')
-            print(f'Final Results: {args.data} pred_len={args.pred_len}')
+            print(f'Final Results: {dataset_name} pred_len={args.pred_len}')
             print(f'MSE: {mse:.6f}')
             print(f'MAE: {mae:.6f}')
             print(f'{"="*60}\n')
