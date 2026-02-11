@@ -2,174 +2,121 @@
 # =============================================================================
 # xPatch-GL Hybrid: Experiment Runner
 # =============================================================================
-#
-# Usage:
-#   bash runner_hybrid.sh [variant] [dataset]
-#
-# Variants:
-#   full     - All GLCN enhancements (aggregate + multiscale + gating)
-#   no_agg   - No aggregate conv
-#   no_ms    - No multi-scale conv
-#   no_gate  - No gating
-#   baseline - Pure xPatch style (no enhancements)
-#   ablation - Run all variants for ablation study
-#   all      - Run full variant on all datasets
-#
-# Datasets:
-#   ETTh1, ETTh2, ETTm1, ETTm2, weather, exchange
-#
-# Examples:
-#   bash runner_hybrid.sh full ETTh1
-#   bash runner_hybrid.sh ablation ETTh1
-#   bash runner_hybrid.sh all
-# =============================================================================
 
 # Settings
 EPOCHS=30
 LR=0.0001
 PATIENCE=10
 SEQ_LEN=336
-EMA_ALPHA=0.3
 PATCH_LEN=16
 STRIDE=8
 
-# Dataset-specific batch sizes
-BATCH_ETT=2048
-BATCH_WEATHER=1024
-BATCH_EXCHANGE=32
-
-# Create results directory
 mkdir -p results_hybrid
 
-# Function to run a single experiment
-run_experiment() {
-    local dataset=$1
-    local data_path=$2
-    local enc_in=$3
-    local pred_len=$4
-    local variant=$5
-    local batch_size=$6
+# Function to run single experiment with EXPLICIT naming
+run_exp() {
+    local name=$1       # e.g., ETTh1, weather, exchange_rate
+    local data=$2       # e.g., ETTh1, custom
+    local data_path=$3  # e.g., ETTh1.csv, weather.csv
+    local enc_in=$4
+    local pred_len=$5
+    local variant=$6
+    local batch=$7
     
     echo "============================================================"
-    echo "Running: $dataset pred_len=$pred_len variant=$variant batch=$batch_size"
+    echo "Running: ${name} pred_len=${pred_len} variant=${variant}"
     echo "============================================================"
     
     python run_hybrid.py \
         --is_training 1 \
-        --data $dataset \
-        --data_path $data_path \
+        --data ${data} \
+        --data_path ${data_path} \
         --root_path ./dataset/ \
-        --enc_in $enc_in \
-        --seq_len $SEQ_LEN \
-        --pred_len $pred_len \
-        --patch_len $PATCH_LEN \
-        --stride $STRIDE \
-        --ema_alpha $EMA_ALPHA \
-        --variant $variant \
-        --train_epochs $EPOCHS \
-        --batch_size $batch_size \
-        --learning_rate $LR \
-        --patience $PATIENCE \
-        2>&1 | tee results_hybrid/hybrid_${variant}_${dataset}_${pred_len}.log
+        --enc_in ${enc_in} \
+        --seq_len ${SEQ_LEN} \
+        --pred_len ${pred_len} \
+        --variant ${variant} \
+        --train_epochs ${EPOCHS} \
+        --batch_size ${batch} \
+        --learning_rate ${LR} \
+        --patience ${PATIENCE} \
+        2>&1 | tee "results_hybrid/hybrid_${variant}_${name}_${pred_len}.log"
 }
 
-# Function to run all prediction lengths for a dataset
-run_all_pred_lens() {
-    local dataset=$1
-    local data_path=$2
-    local enc_in=$3
-    local variant=$4
-    local batch_size=$5
+# Run all horizons for a dataset
+run_all_horizons() {
+    local name=$1
+    local data=$2
+    local data_path=$3
+    local enc_in=$4
+    local variant=$5
+    local batch=$6
     
-    for pred_len in 96 192 336 720; do
-        run_experiment $dataset $data_path $enc_in $pred_len $variant $batch_size
+    for pl in 96 192 336 720; do
+        run_exp ${name} ${data} ${data_path} ${enc_in} ${pl} ${variant} ${batch}
     done
 }
 
-# Function to run all datasets
-run_all_datasets() {
+# ==== DATASET DEFINITIONS (explicit names) ====
+run_ETTh1()   { run_all_horizons "ETTh1"   "ETTh1"  "ETTh1.csv"          7  "$1" 2048; }
+run_ETTh2()   { run_all_horizons "ETTh2"   "ETTh2"  "ETTh2.csv"          7  "$1" 2048; }
+run_ETTm1()   { run_all_horizons "ETTm1"   "ETTm1"  "ETTm1.csv"          7  "$1" 2048; }
+run_ETTm2()   { run_all_horizons "ETTm2"   "ETTm2"  "ETTm2.csv"          7  "$1" 2048; }
+run_weather() { run_all_horizons "weather" "custom" "weather.csv"        21 "$1" 1024; }
+run_exchange(){ run_all_horizons "exchange_rate" "custom" "exchange_rate.csv" 8 "$1" 32; }
+
+# Run all datasets
+run_all() {
     local variant=$1
-    
-    # ETT datasets (7 features, batch=2048)
-    run_all_pred_lens "ETTh1" "ETTh1.csv" 7 $variant $BATCH_ETT
-    run_all_pred_lens "ETTh2" "ETTh2.csv" 7 $variant $BATCH_ETT
-    run_all_pred_lens "ETTm1" "ETTm1.csv" 7 $variant $BATCH_ETT
-    run_all_pred_lens "ETTm2" "ETTm2.csv" 7 $variant $BATCH_ETT
-    
-    # Weather (21 features, batch=1024)
-    run_all_pred_lens "custom" "weather.csv" 21 $variant $BATCH_WEATHER
-    
-    # Exchange (8 features, batch=32)
-    run_all_pred_lens "custom" "exchange_rate.csv" 8 $variant $BATCH_EXCHANGE
+    run_ETTh1 ${variant}
+    run_ETTh2 ${variant}
+    run_ETTm1 ${variant}
+    run_ETTm2 ${variant}
+    run_weather ${variant}
+    run_exchange ${variant}
 }
 
-# Function to run ablation study on one dataset
+# Ablation study
 run_ablation() {
     local dataset=$1
-    local data_path=$2
-    local enc_in=$3
-    local batch_size=$4
-    
-    echo "============================================================"
-    echo "ABLATION STUDY: $dataset (batch=$batch_size)"
-    echo "============================================================"
-    
-    for variant in full no_agg no_ms no_gate baseline; do
-        echo ""
-        echo ">>> Variant: $variant"
-        run_all_pred_lens $dataset $data_path $enc_in $variant $batch_size
+    for v in full no_agg no_ms no_gate baseline; do
+        echo ">>> Ablation variant: ${v}"
+        case ${dataset} in
+            ETTh1)   run_ETTh1 ${v} ;;
+            ETTh2)   run_ETTh2 ${v} ;;
+            ETTm1)   run_ETTm1 ${v} ;;
+            ETTm2)   run_ETTm2 ${v} ;;
+            weather) run_weather ${v} ;;
+            exchange) run_exchange ${v} ;;
+        esac
     done
 }
 
-# Parse arguments
+# ==== MAIN ====
 VARIANT=${1:-full}
 DATASET=${2:-all}
 
 echo "============================================================"
-echo "xPatch-GL Hybrid Experiment Runner"
-echo "============================================================"
-echo "Variant: $VARIANT"
-echo "Dataset: $DATASET"
-echo "Settings: EPOCHS=$EPOCHS, LR=$LR, PATIENCE=$PATIENCE"
-echo "          SEQ_LEN=$SEQ_LEN, PATCH_LEN=$PATCH_LEN, STRIDE=$STRIDE"
-echo "Batch sizes: ETT=$BATCH_ETT, Weather=$BATCH_WEATHER, Exchange=$BATCH_EXCHANGE"
+echo "xPatch-GL Hybrid Runner"
+echo "Variant: ${VARIANT}, Dataset: ${DATASET}"
 echo "============================================================"
 
-# Main logic
-if [ "$VARIANT" = "ablation" ]; then
-    # Ablation study on specified dataset
-    case $DATASET in
-        ETTh1) run_ablation "ETTh1" "ETTh1.csv" 7 $BATCH_ETT ;;
-        ETTh2) run_ablation "ETTh2" "ETTh2.csv" 7 $BATCH_ETT ;;
-        ETTm1) run_ablation "ETTm1" "ETTm1.csv" 7 $BATCH_ETT ;;
-        ETTm2) run_ablation "ETTm2" "ETTm2.csv" 7 $BATCH_ETT ;;
-        weather) run_ablation "custom" "weather.csv" 21 $BATCH_WEATHER ;;
-        exchange) run_ablation "custom" "exchange_rate.csv" 8 $BATCH_EXCHANGE ;;
-        all) 
-            run_ablation "ETTh1" "ETTh1.csv" 7 $BATCH_ETT
-            run_ablation "ETTh2" "ETTh2.csv" 7 $BATCH_ETT
-            ;;
-        *) echo "Unknown dataset: $DATASET" ;;
-    esac
-elif [ "$VARIANT" = "all" ]; then
-    # Run full variant on all datasets
-    run_all_datasets "full"
+if [ "${VARIANT}" = "ablation" ]; then
+    run_ablation ${DATASET}
+elif [ "${DATASET}" = "all" ]; then
+    run_all ${VARIANT}
 else
-    # Run specific variant on specific dataset
-    case $DATASET in
-        ETTh1) run_all_pred_lens "ETTh1" "ETTh1.csv" 7 $VARIANT $BATCH_ETT ;;
-        ETTh2) run_all_pred_lens "ETTh2" "ETTh2.csv" 7 $VARIANT $BATCH_ETT ;;
-        ETTm1) run_all_pred_lens "ETTm1" "ETTm1.csv" 7 $VARIANT $BATCH_ETT ;;
-        ETTm2) run_all_pred_lens "ETTm2" "ETTm2.csv" 7 $VARIANT $BATCH_ETT ;;
-        weather) run_all_pred_lens "custom" "weather.csv" 21 $VARIANT $BATCH_WEATHER ;;
-        exchange) run_all_pred_lens "custom" "exchange_rate.csv" 8 $VARIANT $BATCH_EXCHANGE ;;
-        all) run_all_datasets $VARIANT ;;
-        *) echo "Unknown dataset: $DATASET" ;;
+    case ${DATASET} in
+        ETTh1)   run_ETTh1 ${VARIANT} ;;
+        ETTh2)   run_ETTh2 ${VARIANT} ;;
+        ETTm1)   run_ETTm1 ${VARIANT} ;;
+        ETTm2)   run_ETTm2 ${VARIANT} ;;
+        weather) run_weather ${VARIANT} ;;
+        exchange) run_exchange ${VARIANT} ;;
+        *) echo "Unknown dataset: ${DATASET}" ;;
     esac
 fi
 
-echo ""
 echo "============================================================"
-echo "All experiments completed!"
-echo "Results saved to results_hybrid/"
+echo "Done! Results in results_hybrid/"
 echo "============================================================"
